@@ -27,7 +27,8 @@ The easiest/quick-and-dirty to get started is
 
 ## Rails Usage
 
-# In your controller, instantiate an instance & pass it a search term.
+In your controller, instantiate an instance & pass it a search term.
+
 ```
   @flickr = FlickrSearch::FlickrSearch.new
   @flickr.search("Boulder, Colorado")
@@ -37,7 +38,8 @@ The easiest/quick-and-dirty to get started is
   @flickr = FlickrSearch::FlickrSearch.new.search("Boulder, Colorado")
 
 ```
-# Then use the your instance to populate an img src in your View or something
+
+Then use the your instance to populate an img src in your View or something
 
 ```
 <% if @flickr %>
