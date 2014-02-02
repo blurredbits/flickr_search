@@ -2,7 +2,7 @@
 
 Allows you to use add public images from Flickr into your application using your own Flickr Developer API credentials.
 
-Extracted from a little Ruby 2.1.0p0 / Rails 4.0.2 app.
+Extracted from a little example Ruby 2.1.0p0 / Rails 4.0.2 app that accompanies my talk about Mining for Gems in your Rails App.
 
 ## Installation
 
@@ -20,6 +20,9 @@ The quick-and-dirty way to add an environment variable for testing is:
 ```
  $export FLICKR_API_KEY='YOUR_OWN_DEVELOPER_KEY'
 ```
+
+Alternatively, you can send in your api key as an optional parameter when you're new-ing up the FlickrSearch object but this is highly discouraged because you'll inadvertently end up sharing your api key when you push your code to GitHub. Plus saving your config within the app is not http://12factor.net - savvy anyway. And you do want to be savvy, don't you?
+
 
 ## Rails Usage
 
