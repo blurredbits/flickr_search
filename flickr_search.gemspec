@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
   spec.email         = ["velobuff@gmail.com"]
   spec.summary       = %q{Simple photo search for Flickr}
   spec.description   = %q{Search photos on Flickr using your Flickr developer API credentials.}
-  spec.homepage      = "http://github.com/velobuff/flickr_search"
+  spec.homepage      = "http://github.com/velobuff/flickr_search/"
   spec.license       = "MIT"
 
   spec.files         = `git ls-files -z`.split("\x0")
@@ -19,7 +19,6 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   spec.add_runtime_dependency "faraday", "~> 0.9.0"
-#  spec.add_runtime_dependency "active_support" "~> 4.0.2"
 
   spec.add_development_dependency "bundler", "~> 1.5"
   spec.add_development_dependency "rake"
