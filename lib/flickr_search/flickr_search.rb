@@ -4,7 +4,10 @@ require 'JSON' #again hafta explicitly require it for the gem/ruby vs. rails
 module FlickrSearch
   class FlickrSearch
 
+    attr_reader :search_query
+
     def initialize(api_key = nil)
+      @photos = []
       @api_key = api_key if api_key
     end
 
@@ -15,11 +18,9 @@ module FlickrSearch
         req.url flickr_endpoint, api_key: api_key, method: api_method, text: search_query, format: format, nojsoncallback: 1
       end
 
-      self #otherwise we'd be returning @response which is a Faraday::Response and we wouldn't be able to chain as expected
-    end
+      create_photos
 
-    def search_query
-      @search_query
+      self #otherwise we'd be returning @response which is a Faraday::Response and we wouldn't be able to chain as expected
     end
 
     def api_key
@@ -27,62 +28,79 @@ module FlickrSearch
     end
 
     def num_results
-      json_response["photos"]["total"].to_i
+      @photos.count
     end
 
     def random_photo_url
-      photo_url random_photo
+      random_photo.url
     end
 
     def random_photo_description
-      random_photo["title"]
+      random_photo.title
     end
 
     private
 
-      def random_photo
-        @random_photo ||= json_response["photos"]["photo"].sample
+    def create_photos
+      json_response["photos"]["photo"].each { |photo| @photos << Photo.new(photo) } if json_response["photos"].count > 0
+    end
+
+    def random_photo
+      @random_photo ||= @photos.sample
+    end
+
+    def response
+      @response
+    end
+
+    def json_response
+      @json_response ||= JSON.parse(response.body)
+    end
+
+    def api_method
+      @api_method ||= %q{flickr.photos.search}
+    end
+
+    def format
+      @format ||= "json"
+    end
+
+    def conn
+      @conn ||= Faraday.new(:url => flickr_endpoint) do |f|
+        f.request :url_encoded
+        f.response :logger
+        f.adapter Faraday.default_adapter
       end
+    end
 
-      def photo_url(photo_json, photo_size = nil)
+    def flickr_endpoint
+      @flickr_endpoint ||= %q{http://api.flickr.com/services/rest/}
+    end
 
-        farm = photo_json["farm"]
-        server = photo_json["server"]
-        id = photo_json["id"]
-        secret = photo_json["secret"]
-        size = photo_size || "_b"
+  end
 
-        "http://farm#{farm}.staticflickr.com/#{server}/#{id}_#{secret}#{size}.jpg"
+  class Photo
 
-      end
+    attr_reader :photo_json, :photo_size
 
-      def response
-         @response
-      end
+    def initialize(photo_json, photo_size = nil)
+      @photo_json = photo_json
+      @photo_size = photo_size if photo_size
+    end
 
-      def json_response
-       @json_response ||= JSON.parse(response.body)
-      end
+    def url
+      farm = photo_json["farm"]
+      server = photo_json["server"]
+      id = photo_json["id"]
+      secret = photo_json["secret"]
+      size = photo_size || "_b"
 
-      def api_method
-        @api_method ||= %q{flickr.photos.search}
-      end
+      "http://farm#{farm}.staticflickr.com/#{server}/#{id}_#{secret}#{size}.jpg"
+    end
 
-      def format
-        @format ||= "json"
-      end
-
-      def conn
-        @conn ||= Faraday.new(:url => flickr_endpoint) do |f|
-          f.request :url_encoded
-          f.response :logger
-          f.adapter Faraday.default_adapter
-        end
-      end
-
-      def flickr_endpoint
-        @flickr_endpoint ||= %q{http://api.flickr.com/services/rest/}
-      end
+    def title
+      photo_json["title"]
+    end
 
   end
 
